@@ -4,7 +4,7 @@ load_dotenv()
 #way 1
 # from langchain_google_genai import ChatGoogleGenerativeAI
 
-# model = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite")
+# model = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite",temperture=0.9,max_token=200)
 # response = model.invoke("tell me about virat kholi") 
 # print(response.content)
 
@@ -35,19 +35,19 @@ load_dotenv()
 
 #Download model locally using hugging face 
 
-from langchain_huggingface import HuggingFacePipeline
-from transformers import pipeline
+# from langchain_huggingface import HuggingFacePipeline
+# from transformers import pipeline
 
-model = HuggingFacePipeline(
-    pipeline=pipeline(
-        "text-generation",
-        model="Qwen/Qwen2.5-0.5B-Instruct"
+# model = HuggingFacePipeline(
+#     pipeline=pipeline(
+#         "text-generation",
+#         model="Qwen/Qwen2.5-0.5B-Instruct"
 
-    )
-)
+#     )
+# )
 
-response = model.invoke("What is langchain?")
-print(response)
+# response = model.invoke("What is langchain?")
+# print(response)
 
 
 
