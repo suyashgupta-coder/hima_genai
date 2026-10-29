@@ -28,5 +28,6 @@ result = chain.invoke({
 
 })
 
+
 print("Short Explanation",result['short'])
 print("detailed Explanation",result['detail'])
