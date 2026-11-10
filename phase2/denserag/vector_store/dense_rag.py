@@ -1,32 +1,39 @@
+
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from dotenv import load_dotenv
 load_dotenv()
 
-#1 create embedding model
-embedding_model = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview")
-
-#2 Create a chat model
-
-llm = ChatGroq(model="openai/gpt-oss-120b")
-
-#3 connect vector store
-vectorstore = Chroma(
-    persist_directory="D:/hima_genai/phase2/denserag/vector_store/chroma_db",
-    embedding_function=embedding_model
+# 1. Create embedding model
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-#4 create retriever
-retriever = vectorstore.as_retriever(
-    search_type ="mmr",
-    search_kwargs={
-        "k":4,
-        "fetch_k":10,
-        "lambda_mult":0.7
+# 2. Create chat model
+llm = ChatGroq(
+    model="openai/gpt-oss-120b"
+)
 
+# 3. Connect to vector store
+vectorstores = Chroma(
+    persist_directory="D:/hima_genai/phase2/denserag/vector_store/chroma_db",
+    embedding_function=embedding_model,
+    collection_name="dense_rag"
+)
+
+print("Total stored chunks:", vectorstores._collection.count())
+
+# 4. Create retriever
+retriever = vectorstores.as_retriever(
+    search_type="mmr",
+    search_kwargs={
+        "k": 4,
+        "fetch_k": 10,
+        "lambda_mult": 0.7
     }
 )
 
@@ -46,22 +53,33 @@ Question:
 {question}
 """)
 
-
-print("RAG System is ready")
+print("RAG System is ready!")
 print("Type 0 to exit")
 
+# 6. Chat loop
 while True:
-    qurey = input("\n You:")
-    if qurey =="0":
+
+    query = input("\nYOU: ")
+
+    if query == "0":
         break
-    #7 Retrive relevent documents
-    docs = retriever.invoke(qurey)
-#8 combaine retrived document
-    context = "\n \n ".join(doc.page_content for doc in docs)
-    print("\n Retrieved Context: \n",context)
+
+    # 7. Retrieve relevant documents
+    docs = retriever.invoke(query)
+
+    # 8. Combine retrieved documents
+    context = "\n\n".join(
+        doc.page_content for doc in docs
+    )
+
+    print("\nRetrieved Context:\n", context)
+
+    # 9. Generate answer
     final_prompt = prompt.invoke({
-        "context":context,
-        "question":qurey
+        "context": context,
+        "question": query
     })
+
     response = llm.invoke(final_prompt)
-    print("AI:", response.content)
+
+    print("\nAI:", response.content)
