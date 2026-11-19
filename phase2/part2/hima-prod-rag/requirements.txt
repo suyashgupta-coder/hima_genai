@@ -1,0 +1,4 @@
+boto3                  # keep up to date: managedSearchConfiguration needs a recent version
+python-dotenv>=1.0
+google-genai>=1.20,<2
+gradio>=5.50,<6
